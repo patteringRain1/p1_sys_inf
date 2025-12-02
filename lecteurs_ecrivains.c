@@ -95,8 +95,8 @@ int main(int argc, char const *argv[])
 	int err;
 
 	// initialisation
-	pthread_t thread_ecri[nb_ecrivain];
-	pthread_t thread_lect[nb_lecteur];
+	pthread_t *thread_ecri = malloc(nb_ecrivain * sizeof(pthread_t));
+	pthread_t *thread_lect = malloc(nb_lecteur * sizeof(pthread_t));
 
 	err = sem_init(&mutex, 0, 1);
 	if (err!=0)
@@ -110,7 +110,7 @@ int main(int argc, char const *argv[])
 	if (err!=0)
 		perror("sem_init_readtry");
 
-	int ids_ecri[nb_ecrivain];
+	int *ids_ecri = malloc(nb_ecrivain * sizeof(int));
 	for (int i = 0; i < nb_ecrivain; i++)
 	{
 		ids_ecri[i] = i;
@@ -119,7 +119,7 @@ int main(int argc, char const *argv[])
 			perror("pthread_create");
 	}
 
-	int ids_lect[nb_lecteur];
+	int *ids_lect = malloc(nb_lecteur * sizeof(int));
 	for (int i = 0; i < nb_lecteur; i++)
 	{
 		ids_lect[i] = i;
@@ -148,6 +148,12 @@ int main(int argc, char const *argv[])
 
 	printf("valeur du nb_ecriture_reel : %d\n", nb_ecriture_reel);
 	printf("valeur du nb_lecture_reel : %d\n", nb_lecture_reel);
+
+	free(thread_ecri);
+	free(thread_lect);
+	free(ids_ecri);
+	free(ids_lect);
+
 
 	return 0;
 }

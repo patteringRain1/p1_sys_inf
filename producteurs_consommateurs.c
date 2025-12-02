@@ -93,8 +93,8 @@ int main(int argc, char const *argv[])
 	int err;
 
 	// initialisation
-	pthread_t thread_prod[nb_producteur];
-	pthread_t thread_cons[nb_consommateur];
+	pthread_t *thread_prod = malloc(nb_producteur * sizeof(pthread_t));
+	pthread_t *thread_cons = malloc(nb_consommateur * sizeof(pthread_t));
 	
 
 	err = pthread_mutex_init(&mutex, NULL);
@@ -110,8 +110,8 @@ int main(int argc, char const *argv[])
 		perror("sem_init_full");
 
 
-	int ids_prod[nb_producteur];
-	int ids_cons[nb_consommateur];
+	int *ids_prod = malloc(nb_producteur * sizeof(int));
+	int *ids_cons = malloc(nb_consommateur * sizeof(int));
 	for (int i = 0; i < nb_producteur; i++)
 	{
 		ids_prod[i] = i;
