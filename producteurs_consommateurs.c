@@ -23,7 +23,13 @@ int nb_consommateur;
 
 void* produce(void* arg) {
 	int id = *((int*)arg);
-	int items = ELEM_PROD / nb_producteur;
+	int base = ELEM_PROD / nb_producteur;
+	int reste = ELEM_PROD % nb_producteur;
+
+	int items = base;
+	if (id < reste) {
+		items += 1;
+	}
 
 	for (int j=0; j<10000; j++);
 
@@ -43,9 +49,17 @@ void* produce(void* arg) {
 	return NULL;
 }
 
-void* consume(void*) {
-	int valeur;
-	int items = ELEM_PROD / nb_consommateur;
+void* consume(void* arg) {
+    int id = *((int*)arg);
+    int valeur;
+
+    int base  = ELEM_PROD / nb_consommateur;
+    int reste = ELEM_PROD % nb_consommateur;
+
+    int items = base;
+    if (id < reste) {
+        items += 1;
+    }
 
 	for (int j=0; j<10000; j++);
 
@@ -97,9 +111,10 @@ int main(int argc, char const *argv[])
 
 
 	int ids_prod[nb_producteur];
+	int ids_cons[nb_consommateur];
 	for (int i = 0; i < nb_producteur; i++)
 	{
-		ids_prod[i] = i % nb_producteur;
+		ids_prod[i] = i;
 		err=pthread_create(&(thread_prod[i]), NULL, produce, &ids_prod[i]);
 		if (err!=0)
 			perror("pthread_create");
@@ -107,7 +122,8 @@ int main(int argc, char const *argv[])
 
 	for (int i = 0; i < nb_consommateur; i++)
 	{
-		err=pthread_create(&(thread_cons[i]), NULL, consume, NULL);
+		ids_cons[i] = i;
+		err=pthread_create(&(thread_cons[i]), NULL, consume, &ids_cons[i]);
 		if (err!=0)
 			perror("pthread_create");
 	}

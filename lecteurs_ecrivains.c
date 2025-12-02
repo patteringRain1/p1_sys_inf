@@ -17,7 +17,15 @@ int nb_ecrivain;
 
 
 void* writer (void* arg) {
-	int items = NOMBRE_ECRITURE / nb_ecrivain;
+	int id = *((int*) arg);
+	int base = NOMBRE_ECRITURE / nb_ecrivain;
+	int reste = NOMBRE_ECRITURE % nb_ecrivain;
+
+	int items = base;
+	if (id < reste) {
+		items += 1;
+	}
+
 	for (int i = 0; i <items; i++) {
 		sem_wait(&readtry);
 		sem_wait(&wrt);
@@ -34,7 +42,14 @@ void* writer (void* arg) {
 }
 
 void* reader (void* arg) {
-	int items = NOMBRE_LECTURE / nb_lecteur;
+	int id = *((int*) arg);
+	int base = NOMBRE_LECTURE / nb_lecteur;
+	int reste = NOMBRE_LECTURE % nb_lecteur;
+
+	int items = base;
+	if (id < reste) {
+		items += 1;
+	}
 
 	for (int i = 0; i <items; i++) {
 		sem_wait(&readtry);
@@ -50,8 +65,13 @@ void* reader (void* arg) {
 		sem_post(&readtry);
 
 		for (int j = 0; j< 10000; j++);
-		nb_lecture_reel++;
+		//section critique
 
+		sem_wait(&mutex);
+		nb_lecture_reel++;
+		sem_post(&mutex);
+
+		//section critique
 		sem_wait(&mutex);
 		//section critique
 
@@ -78,7 +98,6 @@ int main(int argc, char const *argv[])
 	pthread_t thread_ecri[nb_ecrivain];
 	pthread_t thread_lect[nb_lecteur];
 
-
 	err = sem_init(&mutex, 0, 1);
 	if (err!=0)
 		perror("sem_init_mutex");
@@ -91,19 +110,25 @@ int main(int argc, char const *argv[])
 	if (err!=0)
 		perror("sem_init_readtry");
 
+	int ids_ecri[nb_ecrivain];
 	for (int i = 0; i < nb_ecrivain; i++)
 	{
-		err= pthread_create(&thread_ecri[i], NULL, writer, NULL);
+		ids_ecri[i] = i;
+		err= pthread_create(&thread_ecri[i], NULL, writer, &ids_ecri[i]);
 		if (err != 0)
 			perror("pthread_create");
 	}
 
+	int ids_lect[nb_lecteur];
 	for (int i = 0; i < nb_lecteur; i++)
 	{
-		err = pthread_create(&thread_lect[i], NULL, reader, NULL);
+		ids_lect[i] = i;
+		err = pthread_create(&thread_lect[i], NULL, reader, &ids_lect[i]);
 		if (err != 0)
 			perror("pthread_create");
 	}
+
+
 
 	for (int i = 0; i < nb_ecrivain; i++)
 	{
