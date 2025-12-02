@@ -1,4 +1,4 @@
-CFLAGS=-std=c11 -pedantic -Wvla -Wall -Werror -D_DEFAULT_SOURCE -lpthread
+CFLAGS=-std=c11 -pedantic -Wall -Werror -D_DEFAULT_SOURCE -lpthread
 
 PROGS=philosophe lecteurs_ecrivains producteurs_consommateurs
 

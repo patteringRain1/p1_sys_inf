@@ -1,51 +1,26 @@
 threads,time
-2,Command exited with non-zero status 127
-0.10
-2,Command exited with non-zero status 127
-0.10
-2,Command exited with non-zero status 127
-0.09
-2,Command exited with non-zero status 127
-0.10
-2,Command exited with non-zero status 127
-0.10
-4,Command exited with non-zero status 127
-0.09
-4,Command exited with non-zero status 127
-0.09
-4,Command exited with non-zero status 127
-0.11
-4,Command exited with non-zero status 127
-0.09
-4,Command exited with non-zero status 127
-0.09
-8,Command exited with non-zero status 127
-0.09
-8,Command exited with non-zero status 127
-0.10
-8,Command exited with non-zero status 127
-0.09
-8,Command exited with non-zero status 127
-0.10
-8,Command exited with non-zero status 127
-0.10
-16,Command exited with non-zero status 127
-0.10
-16,Command exited with non-zero status 127
-0.09
-16,Command exited with non-zero status 127
-0.10
-16,Command exited with non-zero status 127
-0.09
-16,Command exited with non-zero status 127
-0.09
-32,Command exited with non-zero status 127
-0.10
-32,Command exited with non-zero status 127
-0.09
-32,Command exited with non-zero status 127
-0.10
-32,Command exited with non-zero status 127
-0.10
-32,Command exited with non-zero status 127
-0.10
+2,0.23
+2,0.24
+2,0.22
+2,0.22
+2,0.31
+4,0.28
+4,0.24
+4,0.23
+4,0.24
+4,0.24
+8,0.29
+8,0.27
+8,0.27
+8,0.29
+8,0.29
+16,0.22
+16,0.22
+16,0.29
+16,0.23
+16,0.22
+32,0.21
+32,0.23
+32,0.23
+32,0.21
+32,0.23
