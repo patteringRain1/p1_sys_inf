@@ -1,12 +1,12 @@
 #include "monsemaphore.h"
 
-void sem_init(monsemaphore_t *s, int init_val) {
+void monsem_init(monsemaphore_t *s, int init_val) {
     s->value = init_val;
     spinlock_init(&s->lock);
 }
 
-void monsem_wait(semaphore_t *s) {
-    while (true) {
+void monsem_wait(monsemaphore_t *s) {
+    while (1) {
         lock(&s->lock);
 
         if (s->value > 0) {
@@ -20,7 +20,7 @@ void monsem_wait(semaphore_t *s) {
     }
 }
 
-void monsem_post(semaphore_t *s) {
+void monsem_post(monsemaphore_t *s) {
     lock(&s->lock);
     s->value++;
     unlock(&s->lock);

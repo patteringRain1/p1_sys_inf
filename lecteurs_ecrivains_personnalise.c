@@ -1,14 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
-#include <semaphore.h>
+#include "monsemaphore.h"
 
 #define NOMBRE_ECRITURE 6400
 #define NOMBRE_LECTURE 25400
 
-sem_t mutex;
-sem_t wrt;
-sem_t readtry;
+monsemaphore_t mutex;
+monsemaphore_t wrt;
+monsemaphore_t readtry;
 volatile int readcount = 0;
 volatile int nb_ecriture_reel = 0;
 volatile int nb_lecture_reel = 0;
@@ -27,16 +27,16 @@ void* writer (void* arg) {
 	}
 
 	for (int i = 0; i <items; i++) {
-		sem_wait(&readtry);
-		sem_wait(&wrt);
+		monsem_wait(&readtry);
+		monsem_wait(&wrt);
 		//section critique
 
 		for (int j = 0; j < 10000; j++);
 		nb_ecriture_reel++;
 
 		//section critique
-		sem_post(&wrt);
-		sem_post(&readtry);
+		monsem_post(&wrt);
+		monsem_post(&readtry);
 	}
 	return NULL;
 }
@@ -52,35 +52,35 @@ void* reader (void* arg) {
 	}
 
 	for (int i = 0; i <items; i++) {
-		sem_wait(&readtry);
-		sem_wait(&mutex);
+		monsem_wait(&readtry);
+		monsem_wait(&mutex);
 		//section critique
 
 		readcount++;
 		if (readcount == 1)
-			sem_wait(&wrt);
+			monsem_wait(&wrt);
 
 		//section critique
-		sem_post(&mutex);
-		sem_post(&readtry);
+		monsem_post(&mutex);
+		monsem_post(&readtry);
 
 		for (int j = 0; j< 10000; j++);
 		//section critique
 
-		sem_wait(&mutex);
+		monsem_wait(&mutex);
 		nb_lecture_reel++;
-		sem_post(&mutex);
+		monsem_post(&mutex);
 
 		//section critique
-		sem_wait(&mutex);
+		monsem_wait(&mutex);
 		//section critique
 
 		readcount--;
 		if (readcount == 0)
-			sem_post(&wrt);
+			monsem_post(&wrt);
 
 		//section critique
-		sem_post(&mutex);
+		monsem_post(&mutex);
 	}
 	return NULL;
 }
@@ -97,17 +97,12 @@ int main(int argc, char const *argv[])
 	pthread_t *thread_ecri = malloc(nb_ecrivain * sizeof(pthread_t));
 	pthread_t *thread_lect = malloc(nb_lecteur * sizeof(pthread_t));
 
-	err = sem_init(&mutex, 0, 1);
-	if (err!=0)
-		perror("sem_init_mutex");
+	monsem_init(&mutex, 1);
 
-	err = sem_init(&wrt, 0, 1);
-	if (err!=0)
-		perror("sem_init_wrt");
+	monsem_init(&wrt, 1);
 
-	err = sem_init(&readtry, 0, 1);
-	if (err!=0)
-		perror("sem_init_readtry");
+	monsem_init(&readtry, 1);
+
 
 	int *ids_ecri = malloc(nb_ecrivain * sizeof(int));
 	for (int i = 0; i < nb_ecrivain; i++)
@@ -141,14 +136,13 @@ int main(int argc, char const *argv[])
 
 
 	// destruction
-	sem_destroy(&mutex);
-	sem_destroy(&wrt);
-	sem_destroy(&readtry);
-
 	free(thread_ecri);
 	free(thread_lect);
 	free(ids_ecri);
 	free(ids_lect);
-	
+
+	printf("nombre de lecture : %d\n", nb_lecture_reel);
+	printf("nombre de écriture : %d\n", nb_ecriture_reel);
+
 	return 0;
 }
