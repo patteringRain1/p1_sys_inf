@@ -14,7 +14,7 @@ void spinlock_init(spinlock_t *lock) {
 
 void lock(spinlock_t *lock) {
 
-    while (true) {
+    while (1) {
         while (lock->flag == 1) {
             asm volatile("pause");
         }
