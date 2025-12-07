@@ -12,7 +12,7 @@ THREADS="2 4 8 16 32"
 for t in $THREADS; do
     for j in 1 2 3 4 5; do
         echo "Philosophes : $t threads (run $j/5)"
-        /usr/bin/time -f %e -o /tmp/measurements ./philosophe $t > /dev/null
+        /usr/bin/time -f %e -o /tmp/measurements ./philosophe_personnalise $t > /dev/null
         TIME=$(cat /tmp/measurements)
         echo "    → Temps: ${TIME}s"
         echo "$t,$(cat /tmp/measurements)" >> measures_philosophes.csv
@@ -27,7 +27,7 @@ for t in $THREADS; do
 
     for j in 1 2 3 4 5; do
         echo "Lecteurs/Ecrivains : $t total → $lec lecteurs / $ecr écrivains (run $j/5)"
-        /usr/bin/time -f %e -o /tmp/measurements ./lecteurs_ecrivains $ecr $lec > /dev/null
+        /usr/bin/time -f %e -o /tmp/measurements ./lecteurs_ecrivains_personnalise $ecr $lec > /dev/null
         TIME=$(cat /tmp/measurements)
         echo "    → Temps: ${TIME}s"
         echo "$t,$(cat /tmp/measurements)" >> measures_rw.csv
@@ -42,10 +42,10 @@ for t in $THREADS; do
 
     for j in 1 2 3 4 5; do
         echo "Prod/Cons : $t total → $prod producteurs / $cons consommateurs (run $j/5)"
-        /usr/bin/time -f %e -o /tmp/measurements ./producteurs_consommateurs $prod $cons > /dev/null
+        /usr/bin/time -f %e -o /tmp/measurements ./producteur_consommateur_personnalise $prod $cons > /dev/null
         TIME=$(cat /tmp/measurements)
         echo "    → Temps: ${TIME}s"
-        echo "$t,$(cat /tmp/measurements)" >> ./measures/measures_producteurs_consommateurs.csv
+        echo "$t,$(cat /tmp/measurements)" >> measures_producteurs_consommateurs.csv
     done
 done
 
