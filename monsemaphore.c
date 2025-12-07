@@ -16,7 +16,7 @@ void monsem_wait(monsemaphore_t *s) {
         }
 
         unlock(&s->lock);
-        asm volatile("pause");
+        __asm__ volatile("pause");
     }
 }
 

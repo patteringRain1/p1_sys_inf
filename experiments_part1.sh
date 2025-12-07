@@ -1,4 +1,36 @@
 #!/bin/bash
+#
+# Script d'expérimentation permettant de mesurer le temps d’exécution
+# de trois programmes concurrents :
+#   - philosophes          (verrous test-and-set / test-and-test-and-set)
+#   - lecteurs_ecrivains   (RW problem)
+#   - producteurs_consommateurs
+#
+# Fonctionnement :
+#   - Les tests sont effectués pour 5 tailles de charge : 2, 4, 8, 16, 32 threads.
+#   - Chaque configuration est exécutée 5 fois afin d'obtenir des mesures
+#     plus fiables.
+#   - Le temps "réel" (format %e) fourni par /usr/bin/time est capturé
+#     dans /tmp/measurements puis ajouté dans les CSV.
+#
+# Fichiers générés :
+#   - measures_philosophes.csv
+#   - measures_rw.csv
+#   - measures_producteurs_consommateurs.csv
+#
+# Structure des CSV :
+#   threads,time
+#   2,0.123
+#   2,0.119
+#   ...
+#
+# Prérequis :
+#   - Les exécutables philosophes, lecteurs_ecrivains et
+#     producteurs_consommateurs doivent être compilés.
+#   - Exécuter le script avec :
+#         chmod +x experiments.sh
+#         ./experiments.sh
+
 
 # CSV Files
 echo "threads,time" > measures_philosophes.csv

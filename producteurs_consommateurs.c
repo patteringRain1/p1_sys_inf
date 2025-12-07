@@ -13,9 +13,9 @@ volatile int cpt_cons = 0;
 int buffer[TAILLE];
 int position_consommateur = 0;
 int position_producteur = 0;
-spinlock_t mutex;
-monsemaphore_t empty;
-monsemaphore_t full;
+pthread_mutex_t mutex;
+sem_t empty;
+sem_t full;
 int nb_producteur;
 int nb_consommateur;
 
