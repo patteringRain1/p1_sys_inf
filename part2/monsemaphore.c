@@ -51,7 +51,7 @@ void monsem_wait(monsemaphore_t *s) {
         unlock(&s->lock);             // Libère avant de retenter
 
         // Instruction PAUSE : réduit la consommation lors du spin
-        asm volatile("pause");
+        __asm__ volatile("pause");
     }
 }
 
