@@ -1,17 +1,37 @@
+/*
+ * Implémentation du problème des philosophes (Dining Philosophers Problem)
+ * utilisant des mutex POSIX (pthread_mutex_t).
+ *
+ * Stratégie utilisée :
+ *   - Chaque philosophe prend toujours la baguette la plus “petite” en premier
+ *     (min(left, right)), puis la seconde. 
+ *   - Cette stratégie impose un ordre global d’acquisition des fourchettes,
+ *     ce qui élimine le risque de deadlock.
+ *
+ * Fonctionnement :
+ *   - Chaque philosophe répète NB_CYCLES cycles où il essaie de manger.
+ *   - Les accès aux baguettes sont protégés par un mutex par baguette.
+ *
+ * Objectifs :
+ *   - Garantir l’absence d’interblocage (deadlock-free).
+ *   - Illustrer un protocole simple d’ordonnancement pour les ressources partagées.
+ */
+
+
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+// Nombre de cycles de tentative de repas
 #define NB_CYCLES 1000000
 
-// Variables globales
-pthread_mutex_t *baguette;
+pthread_mutex_t *baguette;     // Tableau de mutex représentant les baguettes
 int nb_philosophes;
+
 
 void mange(int id)
 {
-    // printf pour debug (optionnel)
-    // printf("Philosophe [%d] mange\n", id);
+    // Simulation de consommation (vide ici car seul le timing importe)
 }
 
 void *philosophe(void *arg)
@@ -22,19 +42,23 @@ void *philosophe(void *arg)
 
     for (long cycle = 0; cycle < NB_CYCLES; cycle++)
     {
-        if (left < right)
-        {
+        /*
+         * Pour éviter un interblocage :
+         * On impose un ordre global d'acquisition :
+         *   => toujours verrouiller la baguette avec l'indice le plus petit en premier.
+         * Cela prévient le cycle d’attente circulaire entre philosophes.
+         */
+        if (left < right) {
             pthread_mutex_lock(&baguette[left]);
             pthread_mutex_lock(&baguette[right]);
-        }
-        else
-        {
+        } else {
             pthread_mutex_lock(&baguette[right]);
             pthread_mutex_lock(&baguette[left]);
         }
 
         mange(id);
 
+        // Libération des deux baguettes
         pthread_mutex_unlock(&baguette[left]);
         pthread_mutex_unlock(&baguette[right]);
     }
@@ -42,53 +66,43 @@ void *philosophe(void *arg)
     return NULL;
 }
 
+
 int main(int argc, char **argv)
 {
-    if (argc != 2)
-    {
+    if (argc != 2) {
         fprintf(stderr, "Usage: %s N_philosophes\n", argv[0]);
         return EXIT_FAILURE;
     }
 
     nb_philosophes = atoi(argv[1]);
-    if (nb_philosophes <= 1)
-    {
+    if (nb_philosophes <= 1) {
         fprintf(stderr, "N_philosophes doit être > 1\n");
         return EXIT_FAILURE;
     }
 
+    // Allocation et initialisation des baguettes (mutex)
     baguette = malloc(sizeof(pthread_mutex_t) * nb_philosophes);
-    if (!baguette)
-    {
-        perror("malloc");
-        return EXIT_FAILURE;
-    }
-
     for (int i = 0; i < nb_philosophes; ++i)
         pthread_mutex_init(&baguette[i], NULL);
 
+    // Allocation des structures pour les threads
     pthread_t *threads = malloc(sizeof(pthread_t) * nb_philosophes);
     int *ids = malloc(sizeof(int) * nb_philosophes);
 
-    if (!threads || !ids)
-    {
-        perror("malloc");
-        return EXIT_FAILURE;
-    }
-
-    for (int i = 0; i < nb_philosophes; ++i)
-    {
+    // Création des threads philosophes
+    for (int i = 0; i < nb_philosophes; ++i) {
         ids[i] = i;
-        if (pthread_create(&threads[i], NULL, philosophe, &ids[i]) != 0)
-        {
+        if (pthread_create(&threads[i], NULL, philosophe, &ids[i]) != 0) {
             perror("pthread_create");
             return EXIT_FAILURE;
         }
     }
 
+    // Attente de fin d'exécution de chaque philosophe
     for (int i = 0; i < nb_philosophes; ++i)
         pthread_join(threads[i], NULL);
 
+    // Destruction des mutex et libération mémoire
     for (int i = 0; i < nb_philosophes; ++i)
         pthread_mutex_destroy(&baguette[i]);
 
@@ -98,3 +112,4 @@ int main(int argc, char **argv)
 
     return EXIT_SUCCESS;
 }
+

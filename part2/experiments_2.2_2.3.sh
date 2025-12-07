@@ -1,4 +1,32 @@
 #!/bin/bash
+#
+# Script d'expérimentation pour mesurer les performances des verrous
+# test-and-set (TAS) et test-and-test-and-set (TTAS).
+#
+# Fonctionnement :
+#   - Exécute les programmes ./test_and_set et ./test_and_test_and_set
+#     pour plusieurs nombres de threads (1, 2, 4, 8, 16, 32).
+#   - Chaque configuration est répétée 5 fois afin d’obtenir des mesures
+#     plus stables.
+#   - Le temps d’exécution "real" (en secondes) est extrait avec 'time'
+#     puis formaté et enregistré dans deux fichiers CSV :
+#           - test_and_set.csv
+#           - test_and_test_and_set.csv
+#
+# Sortie :
+#   - Chaque fichier CSV contient deux colonnes : threads,time
+#   - Ces fichiers sont ensuite utilisés pour générer les graphiques
+#     via le script Python (moyenne et écart-type).
+#
+# Usage :
+#   ./experiments.sh
+#
+# Pré-requis :
+#   - Les exécutables test_and_set et test_and_test_and_set doivent être
+#     compilés et présents dans le même dossier.
+#   - Le script doit être exécutable :
+#         chmod +x experiments.sh
+
 
 THREADS=(1 2 4 8 16 32)
 CSV_TS="test_and_set.csv"
