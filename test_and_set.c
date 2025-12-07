@@ -1,7 +1,7 @@
 #include "spinlock.h"
 
 static inline int xchg(volatile int *ptr, int val) {
-    asm volatile("xchgl %0, %1"
+    __asm__ volatile("xchgl %0, %1"
                  : "+r" (val), "+m" (*ptr)
                  :
                  : "memory");
@@ -15,7 +15,7 @@ void spinlock_init(spinlock_t *lock) {
 void lock(spinlock_t *lock) {
     while (xchg(&lock->flag, 1) == 1) {
         while (lock->flag) {
-            asm volatile("pause");
+            __asm__ volatile("pause");
         }
     }
 }

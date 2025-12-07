@@ -1,9 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
-#include <semaphore.h>
-#include <errno.h>
-#include <stdbool.h>
+#include "spinlock.h"
+#include "monsemaphore.h"
 
 #define TAILLE 8
 #define ELEM_PROD 131072
@@ -33,8 +32,8 @@ void* produce(void* arg) {
 	for (int j=0; j<10000; j++);
 
 	for (int i=0; i<items; i++) {
-		sem_wait(&empty);
-		pthread_mutex_lock(&mutex);
+		monsem_wait(&empty);
+		lock(&mutex);
 		//section critique
 
 		buffer[position_producteur] = id;
@@ -42,8 +41,8 @@ void* produce(void* arg) {
 		cpt_prod = cpt_prod + 1;
 
 		//section critique
-		pthread_mutex_unlock(&mutex);
-		sem_post(&full);
+		unlock(&mutex);
+		monsem_post(&full);
 	}
 	return NULL;
 }
@@ -63,8 +62,8 @@ void* consume(void* arg) {
 	for (int j=0; j<10000; j++);
 
 	for (int i=0; i<items; i++) {
-		sem_wait(&full);
-		pthread_mutex_lock(&mutex);
+		monsem_wait(&full);
+		lock(&mutex);
 		//section critique
 
 		valeur = buffer[position_consommateur];
@@ -73,8 +72,8 @@ void* consume(void* arg) {
 		cpt_cons = cpt_cons + 1;
 
 		//section critique
-		pthread_mutex_unlock(&mutex);
-		sem_post(&empty);
+		unlock(&mutex);
+		monsem_post(&empty);
 	}
 	return NULL;
 }
@@ -91,17 +90,10 @@ int main(int argc, char const *argv[])
 	pthread_t *thread_cons = malloc(nb_consommateur * sizeof(pthread_t));
 	
 
-	err = pthread_mutex_init(&mutex, NULL);
-	if (err!=0)
-		perror("mutex_init");
+	spinlock_init(&mutex);
+	monsem_init(&empty, TAILLE);
+	monsem_init(&full, 0);
 
-	err = sem_init(&empty, 0, TAILLE);
-	if (err!=0)
-		perror("sem_init_empty");
-
-	err = sem_init(&full, 0, 0);
-	if (err!=0)
-		perror("sem_init_full");
 
 
 	int *ids_prod = malloc(nb_producteur * sizeof(int));
@@ -130,14 +122,6 @@ int main(int argc, char const *argv[])
 	for (int i = 0; i < nb_consommateur; i++) {
     	pthread_join(thread_cons[i], NULL);
 	}
-
-
-
-	// destruction
-	pthread_mutex_destroy(&mutex);
-	sem_destroy(&empty);
-	sem_destroy(&full);
-
 
 	printf("valeur du cpt_prod : %d\n", cpt_prod);
 	printf("valeur du cpt_cons : %d\n", cpt_cons);

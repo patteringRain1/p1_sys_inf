@@ -27,10 +27,6 @@ void* section_critique(void* arg) {
 }
 
 int main(int argc, char *argv[]) {
-
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-
     N = atoi(argv[1]);
     int err;
 
@@ -48,14 +44,6 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < N; i++) {
         pthread_join(threads[i], NULL);
     }
-
-
-    printf("valeur du cpt : %d\n", cpt);
-
-
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    double temps = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
-    printf("Temps d'execution : %f secondes\n", temps);
 
     return 0;
 }
